@@ -5,17 +5,16 @@ package com.company;
  */
 public class ElevatorController {
 
-    static final Integer NUMBER_OF_FLOORS = 5;
     private Elevator elevator;
 
-    ElevatorController(Elevator anElevator) {
+    public ElevatorController(final Elevator anElevator) {
         this.elevator = anElevator;
     }
 
     public void main() {
 
         while (true) {
-            for (int i = 0; i <= NUMBER_OF_FLOORS; i++) {
+            for (int i = 0; i <= this.elevator.getNumberOfFloors(); i++) {
                 if (this.elevator.getFloorRequests()[i] == true) {
                     this.moveElevator();
                 }
@@ -23,51 +22,38 @@ public class ElevatorController {
         }
     }
 
+    public void requestFloor(final int floor) {
+        this.elevator.requestFloor(floor);
+    }
+
     public void moveElevator() {
-        if (this.elevator.getGoingUp() == true) {
-            if (hasRequestsAbove()) {
-                serveRequests(this.elevator.getCurrentFloor(), NUMBER_OF_FLOORS);
-            }
-        } else {
 
+        if (this.elevator.getGoingUp() == true &&
+                !this.elevator.hasRequestsAbove()) {
+            this.elevator.setGoingUp(false);
         }
-    }
+        if (this.elevator.getGoingUp() == false &&
+                !this.elevator.hasRequestsBelow()) {
+            this.elevator.setGoingUp(true);
+        }
 
-    public void serveRequests(final int from, final int to) {
+        if (this.elevator.getGoingUp() == true &&
+                this.elevator.hasRequestsAbove()) {
 
-        //up
-        if (from < to) {
-            for (int i = this.elevator.getCurrentFloor() + 1; i <= NUMBER_OF_FLOORS; i++) {
+            for (int i = this.elevator.getCurrentFloor() + 1; i <= this.elevator.getNumberOfFloors(); i++) {
                 if (this.elevator.getFloorRequests()[i] == true) {
-                    this.elevator.moveElevator(i);
+                    this.elevator.move(i);
                 }
             }
         } else {
-            //down
-            for (int i = this.elevator.getCurrentFloor() - 1; i > 0; i--) {
-                if (this.elevator.getFloorRequests()[i] == true) {
-                    this.elevator.moveElevator(i);
+            if (this.elevator.getGoingUp() == false &&
+                    this.elevator.hasRequestsBelow()) {
+                for (int i = this.elevator.getCurrentFloor() - 1; i >= 0; i--) {
+                    if (this.elevator.getFloorRequests()[i] == true) {
+                        this.elevator.move(i);
+                    }
                 }
             }
         }
     }
-
-    public Boolean hasRequestsAbove() {
-        for (int i = this.elevator.getCurrentFloor() + 1; i <= NUMBER_OF_FLOORS; i++) {
-            if (this.elevator.getFloorRequests()[i] == true) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public Boolean hasRequestsBelow() {
-        for (int i = this.elevator.getCurrentFloor() - 1; i <= NUMBER_OF_FLOORS; i--) {
-            if (this.elevator.getFloorRequests()[i] == true) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

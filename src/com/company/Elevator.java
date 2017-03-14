@@ -12,7 +12,7 @@ public class Elevator {
     private Boolean goingUp;
 
 
-    Elevator(final Integer aNumberOfFloors) {
+    public Elevator(final Integer aNumberOfFloors) {
         floorRequests = new Boolean[aNumberOfFloors];
         //1
         this.numberOfFloors = aNumberOfFloors;
@@ -21,25 +21,54 @@ public class Elevator {
         this.goingUp = true;
     }
 
-    public void moveElevator(final int floor) {
-        if (floor <= this.numberOfFloors &&
-                floor >= 0) {
-            if (this.currentFloor > floor) {
+    public void move(final int floor) {
+        if (isValidFloor(floor)) {
+            if (this.currentFloor > floor
+                    || floor == this.numberOfFloors) {
                 this.goingUp = false;
-            } else {
+            }
+            if (this.currentFloor < floor
+                || floor == 0){
                 this.goingUp = true;
             }
             this.currentFloor = floor;
+            this.floorRequests[floor] = false;
         }
     }
 
     //3
     //6
     public void requestFloor(final int floor) {
-        if (floor <= this.numberOfFloors &&
-                floor >= 0) {
+        if (isValidFloor(floor)) {
             this.floorRequests[floor] = true;
         }
+    }
+
+    private Boolean isValidFloor(final int floor) {
+        if (floor <= this.numberOfFloors &&
+                floor >= 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Boolean hasRequestsAbove() {
+        for (int i = currentFloor + 1; i <= numberOfFloors; i++) {
+            if (floorRequests[i] == true) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Boolean hasRequestsBelow() {
+        for (int i = currentFloor - 1; i >= 0; i--) {
+            if (floorRequests[i] == true) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Integer getNumberOfFloors() {
@@ -56,5 +85,9 @@ public class Elevator {
 
     public Boolean getGoingUp() {
         return goingUp;
+    }
+
+    public void setGoingUp(final Boolean value) {
+        this.goingUp = value;
     }
 }
