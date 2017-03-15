@@ -1,19 +1,24 @@
 package com.company;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created by Pablo on 14/3/2017.
  */
 public class Elevator {
 
     //1
-    private Integer numberOfFloors = 1;
-    private Boolean[] floorRequests;
+    private Integer numberOfFloors;
+    private AtomicBoolean[] floorRequests;
     private Integer currentFloor;
     private Boolean goingUp;
 
 
     public Elevator(final Integer aNumberOfFloors) {
-        floorRequests = new Boolean[aNumberOfFloors];
+        this.floorRequests = new AtomicBoolean[aNumberOfFloors];
+        for (int i = 0; i < aNumberOfFloors; i++) {
+            this.floorRequests[i] = new AtomicBoolean(false);
+        }
         //1
         this.numberOfFloors = aNumberOfFloors;
         //2
@@ -24,7 +29,7 @@ public class Elevator {
     public void move(final int floor) {
         if (isValidFloor(floor)) {
             if (this.currentFloor > floor
-                    || floor == this.numberOfFloors) {
+                    || floor == this.numberOfFloors-1) {
                 this.goingUp = false;
             }
             if (this.currentFloor < floor
@@ -32,7 +37,7 @@ public class Elevator {
                 this.goingUp = true;
             }
             this.currentFloor = floor;
-            this.floorRequests[floor] = false;
+            this.floorRequests[floor].set(false);
         }
     }
 
@@ -40,12 +45,12 @@ public class Elevator {
     //6
     public void requestFloor(final int floor) {
         if (isValidFloor(floor)) {
-            this.floorRequests[floor] = true;
+            this.floorRequests[floor].set(true);
         }
     }
 
     private Boolean isValidFloor(final int floor) {
-        if (floor <= this.numberOfFloors &&
+        if (floor <= this.numberOfFloors-1 &&
                 floor >= 0) {
             return true;
         } else {
@@ -54,8 +59,8 @@ public class Elevator {
     }
 
     public Boolean hasRequestsAbove() {
-        for (int i = currentFloor + 1; i <= numberOfFloors; i++) {
-            if (floorRequests[i] == true) {
+        for (int i = currentFloor + 1; i < numberOfFloors; i++) {
+            if (floorRequests[i].get() == true) {
                 return true;
             }
         }
@@ -64,7 +69,7 @@ public class Elevator {
 
     public Boolean hasRequestsBelow() {
         for (int i = currentFloor - 1; i >= 0; i--) {
-            if (floorRequests[i] == true) {
+            if (floorRequests[i].get() == true) {
                 return true;
             }
         }
@@ -75,7 +80,7 @@ public class Elevator {
         return numberOfFloors;
     }
 
-    public Boolean[] getFloorRequests() {
+    public AtomicBoolean[] getFloorRequests() {
         return floorRequests;
     }
 

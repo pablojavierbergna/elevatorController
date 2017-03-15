@@ -17,5 +17,6 @@ public class Main {
 
         Elevator elevator = new Elevator(5);
         ElevatorController elevatorController = new ElevatorController(elevator);
+        (new Thread(elevatorController)).start();
     }
 }

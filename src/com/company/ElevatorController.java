@@ -1,9 +1,11 @@
 package com.company;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created by Pablo on 14/3/2017.
  */
-public class ElevatorController {
+public class ElevatorController implements Runnable{
 
     private Elevator elevator;
 
@@ -11,22 +13,22 @@ public class ElevatorController {
         this.elevator = anElevator;
     }
 
-    public void main() {
-
+    @Override
+    public void run() {
         while (true) {
-            for (int i = 0; i <= this.elevator.getNumberOfFloors(); i++) {
-                if (this.elevator.getFloorRequests()[i] == true) {
+            for (int i = 0; i < this.elevator.getNumberOfFloors(); i++) {
+                if (this.elevator.getFloorRequests()[i].get() == true) {
                     this.moveElevator();
                 }
             }
         }
     }
 
-    public void requestFloor(final int floor) {
+    public synchronized void requestFloor(final int floor) {
         this.elevator.requestFloor(floor);
     }
 
-    public void moveElevator() {
+    public synchronized void moveElevator() {
 
         if (this.elevator.getGoingUp() == true &&
                 !this.elevator.hasRequestsAbove()) {
@@ -40,8 +42,8 @@ public class ElevatorController {
         if (this.elevator.getGoingUp() == true &&
                 this.elevator.hasRequestsAbove()) {
 
-            for (int i = this.elevator.getCurrentFloor() + 1; i <= this.elevator.getNumberOfFloors(); i++) {
-                if (this.elevator.getFloorRequests()[i] == true) {
+            for (int i = this.elevator.getCurrentFloor() + 1; i < this.elevator.getNumberOfFloors(); i++) {
+                if (this.elevator.getFloorRequests()[i].get() == true) {
                     this.elevator.move(i);
                 }
             }
@@ -49,11 +51,19 @@ public class ElevatorController {
             if (this.elevator.getGoingUp() == false &&
                     this.elevator.hasRequestsBelow()) {
                 for (int i = this.elevator.getCurrentFloor() - 1; i >= 0; i--) {
-                    if (this.elevator.getFloorRequests()[i] == true) {
+                    if (this.elevator.getFloorRequests()[i].get() == true) {
                         this.elevator.move(i);
                     }
                 }
             }
         }
+    }
+
+    public Integer getCurrentFloor() {
+        return this.elevator.getCurrentFloor();
+    }
+
+    public Elevator getElevator() {
+        return this.elevator;
     }
 }
